@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+
+    <changeSet id="createUserTable" author="Dmitry_Berlov">
+        <createTable tableName="users">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="DATE_OF_BIRTH" type="DATE">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(500)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet id="createAccountTable" author="Dmitry_Berlov">
+        <createTable tableName="account">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="BALANCE" type="DECIMAL(19, 2)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="addForeignKeysToAccountUsers" author="Dmitry_Berlov">
+        <addForeignKeyConstraint baseTableName="account"
+                                 baseColumnNames="USER_ID"
+                                 referencedTableName="users"
+                                 referencedColumnNames="ID"
+                                 constraintName="fk_account_user"/>
+    </changeSet>
+
+    <changeSet id="createEmailTable" author="Dmitry_Berlov">
+        <createTable tableName="email_data">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="EMAIL" type="VARCHAR(200)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="addForeignKeysToEmailUsers" author="Dmitry_Berlov">
+        <addForeignKeyConstraint baseTableName="email_data"
+                                 baseColumnNames="USER_ID"
+                                 referencedTableName="users"
+                                 referencedColumnNames="ID"
+                                 constraintName="fk_email_data_user"/>
+    </changeSet>
+
+    <changeSet id="createPhoneTable" author="Dmitry_Berlov">
+        <createTable tableName="phone_data">
+            <column name="ID" type="BIGINT">
+                <constraints primaryKey="true" nullable="false" unique="true"/>
+            </column>
+            <column name="USER_ID" type="BIGINT">
+                <constraints nullable="true"/>
+            </column>
+            <column name="PHONE" type="VARCHAR(13)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="addForeignKeysToPhoneUsers" author="Dmitry_Berlov">
+        <addForeignKeyConstraint baseTableName="phone_data"
+                                 baseColumnNames="USER_ID"
+                                 referencedTableName="users"
+                                 referencedColumnNames="ID"
+                                 constraintName="fk_phone_data_user"/>
+    </changeSet>
+</databaseChangeLog>

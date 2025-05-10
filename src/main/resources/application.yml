@@ -1,0 +1,27 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/mydb
+    username: postgres
+    password: root
+  application:
+    name: test_application
+  jpa:
+    show-sql: true
+    hibernate.ddl-auto: update
+  liquibase:
+    change-log: classpath:/db.changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: true
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  sql:
+    init:
+      mode: always
+      data-locations: classpath:data/*.sql
