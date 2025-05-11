@@ -28,8 +28,8 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
 
     @Query("SELECT u FROM User u JOIN u.emailDataList e WHERE e.email = :email")
-    User findUserByEmail(@Param("email") String email);
+    Optional<User> findUserByEmail(@Param("email") String email);
 
     @Query("SELECT u FROM User u JOIN u.phoneDataList p WHERE p.phone = :phone")
-    User  findUserByPhone(@Param("phone") String phone);
+    Optional<User>  findUserByPhone(@Param("phone") String phone);
 }

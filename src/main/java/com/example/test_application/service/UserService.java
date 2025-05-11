@@ -40,17 +40,17 @@ public class UserService {
     public String authenticate(AuthRequest authRequest) {
         log.info("Аутентификация пользователя с email: {} и номером телефона: {} и паролем: {} ",
                 authRequest.getEmail(), authRequest.getPhone(), authRequest.getPassword());
-        User user = null;
+        Optional<User> user = Optional.empty();
         if (authRequest.getPhone() != null) {
             user = userRepository.findUserByPhone(authRequest.getPhone());
         }
-        if (user == null && authRequest.getEmail() != null) {
+        if (user.isEmpty() && authRequest.getEmail() != null) {
             user = userRepository.findUserByEmail(authRequest.getEmail());
         }
-        if (user == null || !user.getPassword().equals(authRequest.getPassword())) {
+        if (user.isEmpty() || !user.get().getPassword().equals(authRequest.getPassword())) {
             throw new RuntimeException("Неправильный email/номер пароль");
         }
-        return jwtService.generateToken(user.getId());
+        return jwtService.generateToken(user.get().getId());
     }
 
 
