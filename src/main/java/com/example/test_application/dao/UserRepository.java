@@ -15,9 +15,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, Long>, JpaSpecificationExecutor<User> {
+
     @Query("SELECT u FROM User u LEFT JOIN u.phoneDataList p LEFT JOIN u.emailDataList e WHERE (:dateOfBirth IS NULL OR u.dateOfBirth > :dateOfBirth) " +
             "AND (:phone IS NULL OR p.phone = :phone) " +
-            "AND (:name IS NULL OR u.name LIKE CONCAT(:name, '%')) " +
+            "AND (:name IS NULL OR u.name LIKE %:name%) " + // Изменено здесь
             "AND (:email IS NULL OR e.email = :email)")
     Page<User> searchUsers(@Param("dateOfBirth") LocalDate dateOfBirth,
                            @Param("phone") String phone,
@@ -25,11 +26,10 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
                            @Param("email") String email,
                            Pageable pageable);
 
-    User findUserByName(String name);
 
     @Query("SELECT u FROM User u JOIN u.emailDataList e WHERE e.email = :email")
-    Optional<User> findUserByEmail(@Param("email") String email);
+    User findUserByEmail(@Param("email") String email);
 
     @Query("SELECT u FROM User u JOIN u.phoneDataList p WHERE p.phone = :phone")
-    Optional<User> findUserByPhone(@Param("phone") String phone);
+    User  findUserByPhone(@Param("phone") String phone);
 }

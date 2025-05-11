@@ -1,7 +1,8 @@
 package com.example.test_application.controller;
 
 import com.example.test_application.config.AuthRequest;
-import com.example.test_application.service.AuthenticationService;
+import com.example.test_application.config.AuthResponse;
+import com.example.test_application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationService authenticationService;
+    private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
-        String token = authenticationService.authenticate(authRequest);
-        return ResponseEntity.ok(token);
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
+        String token = userService.authenticate(authRequest);
+        return ResponseEntity.ok(new AuthResponse(token));
     }
 }

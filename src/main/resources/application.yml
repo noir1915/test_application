@@ -1,26 +1,46 @@
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+
 server:
   port: 8080
+  forward-headers-strategy: framework
+  shutdown: graceful
+
 spring:
-  datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/mydb
-    username: postgres
-    password: root
   application:
     name: test_application
-  jpa:
-    show-sql: true
-    hibernate.ddl-auto: update
-  liquibase:
-    change-log: classpath:/db.changelog/db.changelog-master.xml
-    enabled: true
-    drop-first: true
-  cache:
-    type: redis
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/test_db
+    username: postgres
+    password: root
+
+  # REDIS
   data:
     redis:
       host: localhost
       port: 6379
+
+  # JPA / HIBERNATE
+  jpa:
+    show-sql: true
+    hibernate.ddl-auto: update
+
+  # LIQUIBASE
+  liquibase:
+    change-log: classpath:/db.changelog/db.changelog-master.xml
+    enabled: true
+    drop-first: true
+
+  # CACHE
+  cache:
+    type: redis
+
+  # SQL INIT DATA LOCATIONS
   sql:
     init:
       mode: always

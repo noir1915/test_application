@@ -1,3 +1,10 @@
-INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (1, 2, 'alice@example.com');
-INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (2, 3, 'bob@example.com');
-INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (3, 4, 'charlie@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (1,'1','alice@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (2,'2','alice.smith@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (3,'3','bob@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (4,'3','bob.johnson@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (5,'4','charlie@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (6,'4','charlie.brown@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (7,'5','david@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (8,'5','david.wilson@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (9,'6','eva@example.com');
+INSERT INTO email_data (ID, USER_ID, EMAIL) VALUES (10,'6','eva.green@example.com');

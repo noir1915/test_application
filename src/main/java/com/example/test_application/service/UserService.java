@@ -1,5 +1,8 @@
 package com.example.test_application.service;
 
+import com.example.test_application.config.AuthRequest;
+import com.example.test_application.dto.EmailDataDTO;
+import com.example.test_application.dto.PhoneDataDTO;
 import com.example.test_application.dto.UserDto;
 import com.example.test_application.exception.ResourceNotFoundException;
 import com.example.test_application.model.EmailData;
@@ -9,17 +12,16 @@ import com.example.test_application.dao.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -27,35 +29,48 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     public Page<UserDto> searchUsers(LocalDate dateOfBirth, String phone, String name, String email, int page, int size) {
-        // Создаем объект Pageable для управления пагинацией
         Pageable pageable = PageRequest.of(page, size);
-
-        // Выполняем запрос к репозиторию с фильтрацией
         Page<User> userPage = userRepository.searchUsers(dateOfBirth, phone, name, email, pageable);
-
-        // Преобразуем Page<User> в Page<UserDto>
         return userPage.map(this::mapToUserDto);
     }
 
-    @Cacheable(value = "users", key = "#id")
-    public UserDto getUserById(Long id) {
-        log.info("Get user by id: " + id);
-        return mapToUserDto(userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id)));
+    public String authenticate(AuthRequest authRequest) {
+        log.info("Аутентификация пользователя с email: {} и номером телефона: {} и паролем: {} ",
+                authRequest.getEmail(), authRequest.getPhone(), authRequest.getPassword());
+        User user = null;
+        if (authRequest.getPhone() != null) {
+            user = userRepository.findUserByPhone(authRequest.getPhone());
+        }
+        if (user == null && authRequest.getEmail() != null) {
+            user = userRepository.findUserByEmail(authRequest.getEmail());
+        }
+        if (user == null || !user.getPassword().equals(authRequest.getPassword())) {
+            throw new RuntimeException("Неправильный email/номер пароль");
+        }
+        return jwtService.generateToken(user.getId());
     }
 
-    @CachePut(value = "users", key = "#userDto.id")
-    public UserDto updateUser(UserDto userDto) {
-        log.info("Updating user with id: " + userDto.getId());
 
-        User user = userRepository.findById(userDto.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userDto.getId()));
+    @Cacheable(value = "users", key = "#id")
+    public UserDto getUserById(Long id) {
+        log.info("Пользователь с id: {}", id);
+        return mapToUserDto(userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + id + " не найден")));
+    }
 
-        // Обновление полей пользователя
+
+    public void createUser(UserDto userDto) {
+
+        if (userDto.getName() == null) {
+            throw new IllegalArgumentException("Имя пользователя не может быть пустым");
+        }
+        log.info("Создание нового пользователя: {}", userDto.getName());
+        User user = new User();
         user.setName(userDto.getName());
-
+        user.setPassword(userDto.getPassword());
         updateEmailList(user, userDto.getEmails());
         updatePhoneList(user, userDto.getPhones());
 
@@ -63,18 +78,33 @@ public class UserService {
             user.setDateOfBirth(userDto.getDateOfBirth());
         }
 
-        // Сохраняем изменения в базе данных
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        mapToUserDto(savedUser);
+    }
 
-        return mapToUserDto(user);
+
+    @CacheEvict(value = "users", key = "#id")
+    public void updateUser(UserDto userDto) {
+        log.info("Обновление пользователя с id: {}", userDto.getId());
+
+        User user = userRepository.findById(userDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + userDto.getId() + " не найден"));
+        user.setName(userDto.getName());
+        updateEmailList(user, userDto.getEmails());
+        updatePhoneList(user, userDto.getPhones());
+
+        if (userDto.getDateOfBirth() != null) {
+            user.setDateOfBirth(userDto.getDateOfBirth());
+        }
+        userRepository.save(user);
+        mapToUserDto(user);
     }
 
     @CacheEvict(value = "users", key = "#id")
     public void deleteUser(Long id) {
-        log.info("Deleting user with id: " + id);
+        log.info("Удаление пользователя с id : {}", id);
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + id + " не найден"));
         userRepository.delete(user);
     }
 
@@ -84,7 +114,6 @@ public class UserService {
         if (isEmailInUse(user, newEmail)) {
             throw new IllegalArgumentException("Email уже зарегистрирован");
         }
-
         EmailData emailData = new EmailData();
         emailData.setEmail(newEmail);
         emailData.setUser(user);
@@ -96,42 +125,34 @@ public class UserService {
 
     public void updatePhone(Long userId, String newPhone) {
         User user = getUserOrThrow(userId);
-
         if (isPhoneInUse(user, newPhone)) {
             throw new IllegalArgumentException("Номер уже зарегистрирован");
         }
-
         PhoneData phoneData = new PhoneData();
         phoneData.setPhone(newPhone);
         phoneData.setUser(user);
-
         user.getPhoneDataList().add(phoneData);
-
         userRepository.save(user);
     }
 
-    private void updateEmailList(User user, List<String> emails) {
-        if (emails != null && !emails.isEmpty()) {
-            // Удаляем старые email
+    private void updateEmailList(User user, List<EmailDataDTO> emailDtos) {
+        if (emailDtos != null && !emailDtos.isEmpty()) {
             user.getEmailDataList().clear();
-            // Добавляем новые email
-            for (String email : emails) {
+            for (EmailDataDTO emailDto : emailDtos) {
                 EmailData emailData = new EmailData();
-                emailData.setEmail(email);
+                emailData.setEmail(emailDto.getEmail());
                 emailData.setUser(user);
                 user.getEmailDataList().add(emailData);
             }
         }
     }
 
-    private void updatePhoneList(User user, List<String> phones) {
-        if (phones != null && !phones.isEmpty()) {
-            // Удаляем старые телефоны
+    private void updatePhoneList(User user, List<PhoneDataDTO> phoneDtos) {
+        if (phoneDtos != null && !phoneDtos.isEmpty()) {
             user.getPhoneDataList().clear();
-            // Добавляем новые телефоны
-            for (String phone : phones) {
+            for (PhoneDataDTO phoneDto : phoneDtos) {
                 PhoneData phoneData = new PhoneData();
-                phoneData.setPhone(phone);
+                phoneData.setPhone(phoneDto.getPhone());
                 phoneData.setUser(user);
                 user.getPhoneDataList().add(phoneData);
             }
@@ -150,7 +171,7 @@ public class UserService {
 
     private User getUserOrThrow(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + id + " не найден"));
     }
 
     private UserDto mapToUserDto(User user) {
@@ -158,15 +179,29 @@ public class UserService {
         userDto.setId(user.getId());
         userDto.setName(user.getName());
 
-        List<String> emails = user.getEmailDataList().stream()
-                .map(EmailData::getEmail)
-                .toList();
-        userDto.setEmails(emails);
+        userDto.setPassword(user.getPassword()); // Убедитесь, что это поле не null
+        userDto.setDateOfBirth(user.getDateOfBirth()); // Убедитесь, что это поле не null
 
-        List<String> phones = user.getPhoneDataList().stream()
-                .map(PhoneData::getPhone)
+        List<EmailDataDTO> emailDtos = user.getEmailDataList().stream()
+                .map(emailData -> {
+                    EmailDataDTO emailDto = new EmailDataDTO();
+                    emailDto.setId(emailData.getId()); // Если у вас есть ID
+                    emailDto.setEmail(emailData.getEmail());
+                    return emailDto;
+                })
                 .toList();
-        userDto.setPhones(phones);
+        userDto.setEmails(emailDtos);
+
+        List<PhoneDataDTO> phoneDtos = user.getPhoneDataList().stream()
+                .map(phoneData -> {
+                    PhoneDataDTO phoneDto = new PhoneDataDTO();
+                    phoneDto.setId(phoneData.getId()); // Если у вас есть ID
+                    phoneDto.setPhone(phoneData.getPhone());
+                    return phoneDto;
+                })
+                .toList();
+        userDto.setPhones(phoneDtos);
+
         return userDto;
     }
 }

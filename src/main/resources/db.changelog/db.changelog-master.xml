@@ -7,7 +7,7 @@
 
     <changeSet id="createUserTable" author="Dmitry_Berlov">
         <createTable tableName="users">
-            <column name="ID" type="BIGINT">
+            <column name="ID" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
             <column name="NAME" type="VARCHAR(500)">
@@ -25,7 +25,7 @@
 
     <changeSet id="createAccountTable" author="Dmitry_Berlov">
         <createTable tableName="account">
-            <column name="ID" type="BIGINT">
+            <column name="ID" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
             <column name="USER_ID" type="BIGINT">
@@ -47,7 +47,7 @@
 
     <changeSet id="createEmailTable" author="Dmitry_Berlov">
         <createTable tableName="email_data">
-            <column name="ID" type="BIGINT">
+            <column name="ID" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
             <column name="USER_ID" type="BIGINT">
@@ -69,7 +69,7 @@
 
     <changeSet id="createPhoneTable" author="Dmitry_Berlov">
         <createTable tableName="phone_data">
-            <column name="ID" type="BIGINT">
+            <column name="ID" type="BIGSERIAL">
                 <constraints primaryKey="true" nullable="false" unique="true"/>
             </column>
             <column name="USER_ID" type="BIGINT">

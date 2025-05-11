@@ -1,9 +1,8 @@
 package com.example.test_application.controller;
 
 import com.example.test_application.model.Account;
-import com.example.test_application.security.CustomUserDetails;
+import com.example.test_application.model.TransferRequest;
 import com.example.test_application.service.AccountService;
-import com.example.test_application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,47 +12,19 @@ import org.springframework.security.core.Authentication;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api/accounts")
+@RequestMapping("/api/v1/accounts")
 @RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
-    private final UserService userService;
 
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Account> getAccountById(@PathVariable Long id) {
-        Account account = accountService.findById(id);
-        return ResponseEntity.ok(account);
-    }
-
-    @PostMapping
-    public ResponseEntity<Account> createAccount(@RequestBody Account account) {
-        Account createdAccount = accountService.createAccount(account);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
-    }
-
-    @PutMapping("/{id}/balance")
-    public ResponseEntity<Account> updateBalance(@PathVariable Long id, @RequestParam BigDecimal amount) {
-        Account updatedAccount = accountService.updateBalance(id, amount);
-        return ResponseEntity.ok(updatedAccount);
-    }
-
-    @PostMapping("/{id}/transfer")
+    @PostMapping("/transfer")
     public ResponseEntity<String> transferMoney(
-            @PathVariable Long id,
-            @RequestParam Long toUserId,
-            @RequestParam BigDecimal value,
-            Authentication authentication) {
+            @RequestBody TransferRequest transferRequest) {
 
-        Long fromUserId = getAuthenticatedUserId(authentication); // Получаем ID пользователя из токена
-
-        accountService.transferMoney(fromUserId, toUserId, value); // Вызываем метод перевода
-
-        return ResponseEntity.ok("Transfer successful");
+        Long fromUserId = transferRequest.getFromUserId(); // Получаем fromUserId из запроса
+        accountService.transferMoney(fromUserId, transferRequest.getToUserId(), transferRequest.getAmount());
+        return ResponseEntity.ok("Транзакция успешно выполнена");
     }
-    private Long getAuthenticatedUserId(Authentication authentication) {
-        // Предполагается, что ID пользователя хранится в Claims токена.
-        return ((CustomUserDetails) authentication.getPrincipal()).getId();
-    }
+
 }

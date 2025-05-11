@@ -25,37 +25,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class AccountService {
 
-    // Хранение начальных значений балансов
     private final Map<Long, BigDecimal> initialBalances = new ConcurrentHashMap<>();
 
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
 
-    public Account findById(Long id) {
-        return accountRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
-    }
-
-    public Account createAccount(Account account) {
-        account.setBalance(account.getBalance());
-        return accountRepository.save(account);
-    }
-
-    @Transactional
-    public Account updateBalance(Long id, BigDecimal amount) {
-        Account account = findById(id);
-        account.setBalance(account.getBalance().add(amount));
-        return accountRepository.save(account);
-    }
 
     @Scheduled(fixedRate = 30000)
     @Transactional
     public void increaseBalances() {
-        log.info("Increasing balances...");
+        log.info("Увеличение баланса...");
         List<Account> accounts = accountRepository.findAll();
         for (Account account : accounts) {
             BigDecimal currentBalance = account.getBalance();
-            log.info("Current balance for account ID {}: {}", account.getId(), currentBalance);
+            log.info("Текущий баланс для идентификатора счета {}: {}", account.getId(), currentBalance);
             if (!initialBalances.containsKey(account.getId())) {
                 initialBalances.put(account.getId(), currentBalance);
             }
@@ -66,33 +49,30 @@ public class AccountService {
                 newBalance = maxAllowedBalance;
             }
             account.setBalance(newBalance);
-            log.info("New balance for account ID {}: {}", account.getId(), newBalance);
+            log.info("Новый баланс для аккаунта {}: {}", account.getId(), newBalance);
             accountRepository.save(account);
         }
     }
 
     @Transactional
     public void transferMoney(Long fromUserId, Long toUserId, BigDecimal amount) {
-        log.info("Initiating transfer of {} from user {} to user {}", amount, fromUserId, toUserId);
+        log.info("Перевод средств {}  пользователя {} пользователю {}", amount, fromUserId, toUserId);
 
-        // Валидация входных данных
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new TransferException("Transfer amount must be greater than zero");
+            throw new TransferException("Сумма перевода должна быть больше нуля");
         }
 
         if (fromUserId.equals(toUserId)) {
-            throw new TransferException("Cannot transfer money to the same account");
+            throw new TransferException("Нельзя перевести деньги на тот же счет");
         }
 
         User fromUser = getUserOrThrow(fromUserId);
         User toUser = getUserOrThrow(toUserId);
 
-        // Проверка наличия средств
         if (fromUser.getAccount().getBalance().compareTo(amount) < 0) {
-            throw new TransferException("Insufficient funds");
+            throw new TransferException("Недостаточно средств");
         }
 
-        // Обновление балансов
         try {
             fromUser.getAccount().setBalance(fromUser.getAccount().getBalance().subtract(amount));
             toUser.getAccount().setBalance(toUser.getAccount().getBalance().add(amount));
@@ -100,15 +80,15 @@ public class AccountService {
             accountRepository.save(fromUser.getAccount());
             accountRepository.save(toUser.getAccount());
 
-            log.info("Transfer successful");
+            log.info("Транзакция успешно завершена");
         } catch (Exception e) {
-            log.error("Error during transfer: {}", e.getMessage());
-            throw new TransferException("Transfer failed due to an internal error");
+            log.error("Ошибка: {}", e.getMessage());
+            throw new TransferException("Передача не удалась из-за внутренней ошибки");
         }
     }
 
     private User getUserOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("Пользователь с идентификатором: " + userId +  " не найден" ));
     }
 }

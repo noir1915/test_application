@@ -1,3 +1,11 @@
-INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (2, 'Alice Smith', '1990-07-15', 'alicepassword');
-INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (3, 'Bob Johnson', '1985-11-30', 'bobpassword');
-INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (4, 'Charlie Brown', '1992-03-25', 'charliepassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (1, 'Alice Smith', '1990-07-15', 'alicepassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (2, 'Bob Johnson', '1985-11-30', 'bobpassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (3, 'Charlie Brown', '1992-03-25', 'charliepassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (4, 'David Wilson', '1988-05-10', 'davidpassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (5, 'Eva Green', '1995-12-01', 'evapassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (6, 'Frank White', '1980-09-20', 'frankpassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (7, 'Grace Lee', '1993-04-15', 'gracepassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (8, 'Henry Black', '1987-08-30', 'henrypassword');
+INSERT INTO users (ID, NAME, DATE_OF_BIRTH, PASSWORD) VALUES (9,'Ivy Adams','1991-02-14','ivypassword');
+INSERT INTO users (ID, NAME , DATE_OF_BIRTH, PASSWORD ) VALUES(10 , 'Jack Brown' , '1989-06-22' , 'jackpassword');
+SELECT setval('users_id_seq',  (SELECT MAX(id) FROM users));

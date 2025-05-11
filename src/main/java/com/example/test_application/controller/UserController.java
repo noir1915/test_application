@@ -1,27 +1,25 @@
 package com.example.test_application.controller;
 
 import com.example.test_application.dto.UserDto;
-import com.example.test_application.model.TransferRequest;
+import com.example.test_application.model.User;
 import com.example.test_application.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    // Эндпоинт для поиска пользователей с фильтрацией.
     @GetMapping("/search")
     public ResponseEntity<Page<UserDto>> searchUsers(
             @RequestParam(required = false) LocalDate dateOfBirth,
@@ -31,10 +29,16 @@ public class UserController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
 
-        Page<UserDto> users = userService.searchUsers(dateOfBirth, phone, name, email, page, size);
-        return ResponseEntity.ok(users);
+        try {
+            Page<UserDto> users = userService.searchUsers(dateOfBirth, phone, name, email, page, size);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            log.error("Ошибка поиска пользователей: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-    // Эндпоинт для получения USer по id
+
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         UserDto user = userService.getUserById(id);
@@ -45,6 +49,12 @@ public class UserController {
         }
     }
 
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+        userService.createUser(userDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UserDto userDto) {
         userDto.setId(id);
@@ -53,12 +63,11 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 
-
-    // Эндпоинт для обновления email.
     @PutMapping("/{id}/email")
     public ResponseEntity<Void> updateEmail(@PathVariable Long id,
                                             @RequestBody String newEmail) {
@@ -66,7 +75,6 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    // Эндпоинт для обновления телефона.
     @PutMapping("/{id}/phone")
     public ResponseEntity<Void> updatePhone(@PathVariable Long id,
                                             @RequestBody String newPhone) {
