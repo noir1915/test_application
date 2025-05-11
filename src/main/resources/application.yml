@@ -29,6 +29,7 @@ spring:
   jpa:
     show-sql: true
     hibernate.ddl-auto: update
+    open-in-view: false
 
   # LIQUIBASE
   liquibase:

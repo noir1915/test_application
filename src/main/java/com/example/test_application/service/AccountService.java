@@ -35,7 +35,7 @@ public class AccountService {
     @Transactional
     public void increaseBalances() {
         log.info("Увеличение баланса...");
-        List<Account> accounts = accountRepository.findAll();
+        Iterable<Account> accounts = accountRepository.findAll();
         for (Account account : accounts) {
             BigDecimal currentBalance = account.getBalance();
             log.info("Текущий баланс для идентификатора счета {}: {}", account.getId(), currentBalance);

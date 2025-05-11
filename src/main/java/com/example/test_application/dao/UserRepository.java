@@ -18,7 +18,7 @@ public interface UserRepository extends CrudRepository<User, Long>, JpaSpecifica
 
     @Query("SELECT u FROM User u LEFT JOIN u.phoneDataList p LEFT JOIN u.emailDataList e WHERE (:dateOfBirth IS NULL OR u.dateOfBirth > :dateOfBirth) " +
             "AND (:phone IS NULL OR p.phone = :phone) " +
-            "AND (:name IS NULL OR u.name LIKE %:name%) " + // Изменено здесь
+            "AND (:name IS NULL OR u.name LIKE %:name%) " +
             "AND (:email IS NULL OR e.email = :email)")
     Page<User> searchUsers(@Param("dateOfBirth") LocalDate dateOfBirth,
                            @Param("phone") String phone,
