@@ -4,12 +4,14 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Service
+@Slf4j
 public class JwtService {
 
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor(new byte[32]);
@@ -33,7 +35,7 @@ public class JwtService {
                     .getBody();
             return Long.parseLong(claims.getSubject());
         } catch (Exception e) {
-            System.err.println("Ошибка при извлечении userId из токена: " + e.getMessage());
+            log.info("Ошибка при извлечении userId из токена: {}", e.getMessage());
             return null;
         }
     }

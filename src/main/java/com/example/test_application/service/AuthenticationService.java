@@ -1,6 +1,5 @@
 package com.example.test_application.service;
 
-import com.example.test_application.config.JwtUtil;
 import com.example.test_application.config.AuthRequest;
 import com.example.test_application.exception.AuthenticationException;
 import com.example.test_application.model.User; // Ваш класс пользователя
@@ -18,7 +17,7 @@ import java.util.Optional;
 public class AuthenticationService {
 
     private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public String authenticate(AuthRequest authRequest) {
@@ -42,6 +41,6 @@ public class AuthenticationService {
             throw new AuthenticationException("Неверные учетные данные");
         }
 
-        return jwtUtil.generateToken(user.get().getId());
+        return jwtService.generateToken(user.get().getId());
     }
 }
