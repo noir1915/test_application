@@ -56,7 +56,7 @@ public class AccountService {
 
     @Transactional
     public void transferMoney(Long fromUserId, Long toUserId, BigDecimal amount) {
-        log.info("Перевод средств {}  пользователя {} пользователю {}", amount, fromUserId, toUserId);
+        log.info("Перевод средств в размере: {} от пользователя: {} пользователю: {}", amount, fromUserId, toUserId);
 
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new TransferException("Сумма перевода должна быть больше нуля");

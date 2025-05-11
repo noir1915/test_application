@@ -16,7 +16,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import java.time.LocalDate;
@@ -31,6 +36,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
+    @Transactional
     public Page<UserDto> searchUsers(LocalDate dateOfBirth, String phone, String name, String email, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<User> userPage = userRepository.searchUsers(dateOfBirth, phone, name, email, pageable);
@@ -55,12 +61,12 @@ public class UserService {
 
 
     @Cacheable(value = "users", key = "#id")
+    @Transactional
     public UserDto getUserById(Long id) {
         log.info("Пользователь с id: {}", id);
         return mapToUserDto(userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + id + " не найден")));
     }
-
 
     public void createUser(UserDto userDto) {
 
@@ -84,6 +90,7 @@ public class UserService {
 
 
     @CacheEvict(value = "users", key = "#id")
+    @Transactional
     public void updateUser(UserDto userDto) {
         log.info("Обновление пользователя с id: {}", userDto.getId());
 
@@ -109,23 +116,25 @@ public class UserService {
     }
 
     public void updateEmail(Long userId, String newEmail) {
-        User user = getUserOrThrow(userId);
 
-        if (isEmailInUse(user, newEmail)) {
+        User user = getUserOrThrow(userId);
+        if (isEmailInUse(newEmail)) {
             throw new IllegalArgumentException("Email уже зарегистрирован");
+        }
+        Long currentUserId = getCurrentAuthenticatedUserId(); // Реализуйте этот метод
+        if (!currentUserId.equals(userId)) {
+            throw new AccessDeniedException("Вы не можете изменять данные другого пользователя");
         }
         EmailData emailData = new EmailData();
         emailData.setEmail(newEmail);
         emailData.setUser(user);
-
         user.getEmailDataList().add(emailData);
-
         userRepository.save(user);
     }
 
     public void updatePhone(Long userId, String newPhone) {
         User user = getUserOrThrow(userId);
-        if (isPhoneInUse(user, newPhone)) {
+        if (isPhoneInUse(newPhone)) {
             throw new IllegalArgumentException("Номер уже зарегистрирован");
         }
         PhoneData phoneData = new PhoneData();
@@ -159,14 +168,12 @@ public class UserService {
         }
     }
 
-    private boolean isEmailInUse(User user, String email) {
-        return user.getEmailDataList().stream()
-                .anyMatch(existingEmail -> existingEmail.getEmail().equals(email));
+    private boolean isEmailInUse(String email) {
+        return userRepository.findUserByEmail(email).isPresent();
     }
 
-    private boolean isPhoneInUse(User user, String phone) {
-        return user.getPhoneDataList().stream()
-                .anyMatch(existingPhone -> existingPhone.getPhone().equals(phone));
+    private boolean isPhoneInUse(String phone) {
+        return userRepository.findUserByPhone(phone).isPresent();
     }
 
     private User getUserOrThrow(Long id) {
@@ -178,10 +185,8 @@ public class UserService {
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setName(user.getName());
-
-        userDto.setPassword(user.getPassword()); // Убедитесь, что это поле не null
-        userDto.setDateOfBirth(user.getDateOfBirth()); // Убедитесь, что это поле не null
-
+        userDto.setPassword(user.getPassword());
+        userDto.setDateOfBirth(user.getDateOfBirth());
         List<EmailDataDTO> emailDtos = user.getEmailDataList().stream()
                 .map(emailData -> {
                     EmailDataDTO emailDto = new EmailDataDTO();
@@ -191,7 +196,6 @@ public class UserService {
                 })
                 .toList();
         userDto.setEmails(emailDtos);
-
         List<PhoneDataDTO> phoneDtos = user.getPhoneDataList().stream()
                 .map(phoneData -> {
                     PhoneDataDTO phoneDto = new PhoneDataDTO();
@@ -203,5 +207,22 @@ public class UserService {
         userDto.setPhones(phoneDtos);
 
         return userDto;
+    }
+
+    // проверка аутентификации User'a
+    public Long getCurrentAuthenticatedUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                String username = ((UserDetails) principal).getUsername();
+                User user = userRepository.findUserByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                return user.getId();
+            } else {
+                throw new RuntimeException("Пользователь не аутентифицирован");
+            }
+        }
+        throw new RuntimeException("Пользователь не аутентифицирован");
     }
 }

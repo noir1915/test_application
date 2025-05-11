@@ -3,6 +3,8 @@ package com.example.test_application.controller;
 import com.example.test_application.dto.UserDto;
 import com.example.test_application.model.User;
 import com.example.test_application.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@Tag(name = "User controller", description = "Operation with user for Admin")
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -21,6 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/search")
+    @Operation(summary = "Список пользователей")
     public ResponseEntity<Page<UserDto>> searchUsers(
             @RequestParam(required = false) LocalDate dateOfBirth,
             @RequestParam(required = false) String phone,
@@ -40,6 +44,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
+    @Operation(summary = "Получить пользователя по имени")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         UserDto user = userService.getUserById(id);
         if (user != null) {
@@ -50,12 +55,14 @@ public class UserController {
     }
 
     @PostMapping
+    @Operation(summary = "Создать нового пользователя")
     public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
         userService.createUser(userDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Обновить пользователя по id")
     public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UserDto userDto) {
         userDto.setId(id);
         userService.updateUser(userDto);
@@ -63,6 +70,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(summary = "Удалить пользователя по id")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
