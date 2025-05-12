@@ -51,21 +51,20 @@ mvn spring-boot:run
 ```
 В браузере перейти по адресу http://localhost:8080/swagger-ui/index.html для доступа к Swagger UI (он частичтно настроен)
 
-Доступные эндпойнты:
-Аутентификация:
+## Доступные эндпойнты:
+### Аутентификация:
 * POST `http://localhost:8080/api/v1/auth/login` - аутентификация пользователя по номеру/email или паролю
-Управление пользователями:
+### Управление пользователями:
 * GET `http://localhost:8080/api/v1/users/search` - поиск пользователей с возможностью фильтрации по различным критериям и пагинацией результатов
 * GET `http://localhost:8080/api/v1/users/{id}` - получить всю информацию о пользователя по id 
 * PUT `http://localhost:8080/api/v1/users/{id}` - обновить пользователя
 * DELETE `http://localhost:8080/api/v1/users/{id}` - удалить пользователя
-Перевод средств между пользователями
+### Перевод средств между пользователями
 POST http://localhost:8080/api/v1/accounts/transfer - перевести средства от одного пользователя к другому.
-Управление контактными данными:
+### Управление контактными данными:
 * POST `http://localhost:8080/api/v1/users/{id}/email` - добавить email пользователя
 * PUT `http://localhost:8080/api/v1/users/{id}/email` - обновить email пользователя
 * DELETE `http://localhost:8080/api/v1/users/{id}/email` - удалить email пользователя
-
 * POST `http://localhost:8080/api/v1/users/{id}/phone` - добавить номер пользователя
 * PUT `http://localhost:8080/api/v1/users/{id}/phone` - обновить номер пользователя
 * DELETE `http://localhost:8080/api/v1/users/{id}/phone` - удалить номер пользователя
