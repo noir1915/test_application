@@ -121,7 +121,7 @@ public class UserService {
         if (isEmailInUse(newEmail)) {
             throw new IllegalArgumentException("Email уже зарегистрирован");
         }
-        Long currentUserId = getCurrentAuthenticatedUserId(); // Реализуйте этот метод
+        Long currentUserId = getCurrentAuthenticatedUserId();
         if (!currentUserId.equals(userId)) {
             throw new AccessDeniedException("Вы не можете изменять данные другого пользователя");
         }
@@ -177,6 +177,7 @@ public class UserService {
     }
 
     private User getUserOrThrow(Long id) {
+        log.info("Поиск пользователя с id: {}", id);
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Пользователь с id: " + id + " не найден"));
     }
