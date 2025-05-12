@@ -6,7 +6,7 @@
 
 ## Стек и тулы:
 
-Java 17, PostgresSQL БД, Spring boot (v3.4.5), API описан с помощью Open API и Swagger, Swagger UI доступен по адресу: http://localhost:8080/swagger-ui/index.html, Maven, Redis, Liquibase, SLF4, JWT
+Java 17, PostgresSQL, Spring boot (v3.4.5), OpenAPI/Swagger, Maven, Redis, Liquibase, SLF4, JWT, Mock, Lombok
 
 ## Общие требование к системе:
 
