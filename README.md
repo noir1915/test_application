@@ -35,7 +35,6 @@ Java 17, PostgresSQL, Spring boot (v3.4.5), OpenAPI/Swagger, Maven, Redis, Liqui
 Не обязательные фичи (сделаны в минимальном исполнении):
 
 1.	Добавлен swagger (минимальная конфигурация).
- `http://localhost:8080/swagger-ui/index.html`
 3.	Добавлено (значимое) логгирование.
 
 Тестирование:
@@ -52,7 +51,7 @@ mvn clean install
 ```
 mvn spring-boot:run
 ```
-В браузере перейти по адресу http://localhost:8080/swagger-ui.html для доступа к Swagger UI (он частичтно настроен)
+В браузере перейти по адресу http://localhost:8080/swagger-ui/index.html для доступа к Swagger UI (он частичтно настроен)
 
 Доступные эндпойнты:
 Аутентификация:
