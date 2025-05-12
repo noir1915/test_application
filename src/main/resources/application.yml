@@ -4,7 +4,6 @@ springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
     operationsSorter: method
-#http://localhost:8080/swagger-ui/index.html
 
 server:
   port: 8080

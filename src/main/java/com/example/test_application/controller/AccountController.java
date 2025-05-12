@@ -22,7 +22,7 @@ public class AccountController {
     public ResponseEntity<String> transferMoney(
             @RequestBody TransferRequest transferRequest) {
 
-        Long fromUserId = transferRequest.getFromUserId(); // Получаем fromUserId из запроса
+        Long fromUserId = transferRequest.getFromUserId();
         accountService.transferMoney(fromUserId, transferRequest.getToUserId(), transferRequest.getAmount());
         return ResponseEntity.ok("Транзакция успешно выполнена");
     }
