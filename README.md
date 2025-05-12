@@ -71,13 +71,17 @@ d)	Если передан «email», то фильтр по 100% сходств
 ```
 Доступные эндпойнты:
 
-* POST `http://localhost:8080/api/v1/users` - создать пользователя
-* GET `http://localhost:8080/api/v1/users/{id}` - получить информацию о пользователе
+* POST `http://localhost:8080/api/v1/auth/login` - аутентификация пользователя по номеру/email или паролю
+* После получения и ввода JWT-токена возможны реализации:
+* GET `http://localhost:8080/api/v1/users/search` - поиск пользователей с возможностью фильтрации по различным критериям и пагинацией результатов
+* GET `http://localhost:8080/api/v1/users/{id}` - получить всю информацию о пользователя по id 
 * PUT `http://localhost:8080/api/v1/users/{id}` - обновить пользователя
 * DELETE `http://localhost:8080/api/v1/users/{id}` - удалить пользователя
 
-* POST `http://localhost:8080/api/v1/users/{id}/subscriptions` - добавить подписку
-* GET `http://localhost:8080/api/v1/users/{id}/subscriptions` - получить подписки пользователя
-* DELETE `http://localhost:8080/api/v1/users/{id}/subscriptions/{sub_id}` - удалить подписку
+* POST `http://localhost:8080/api/v1/users/{id}/email` - добавить email пользователя
+* PUT `http://localhost:8080/api/v1/users/{id}/email` - обновить email пользователя
+* DELETE `http://localhost:8080/api/v1/users/{id}/email` - удалить email пользователя
 
-* GET `http://localhost:8080/subscriptions/top` - получить ТОП-3 популярных подписок
+* POST `http://localhost:8080/api/v1/users/{id}/phone` - добавить номер пользователя
+* PUT `http://localhost:8080/api/v1/users/{id}/phone` - обновить номер пользователя
+* DELETE `http://localhost:8080/api/v1/users/{id}/phone` - удалить номер пользователя
