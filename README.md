@@ -62,7 +62,7 @@ mvn spring-boot:run
 ### Перевод средств между пользователями
 * POST `http://localhost:8080/api/v1/accounts/transfer` - перевести средства от одного пользователя к другому.
 ### Управление контактными данными:
-####### (в ближайшее время будут реализованы)
+###### (в ближайшее время будут реализованы)
 * POST `http://localhost:8080/api/v1/users/{id}/email` - добавить email пользователя
 * PUT `http://localhost:8080/api/v1/users/{id}/email` - обновить email пользователя
 * DELETE `http://localhost:8080/api/v1/users/{id}/email` - удалить email пользователя
