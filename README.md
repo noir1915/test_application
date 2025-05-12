@@ -41,7 +41,7 @@ Java 17, PostgresSQL, Spring boot (v3.4.5), OpenAPI/Swagger, Maven, Redis, Liqui
 ## Запуск проекта:
 Скачать проект из репозитория GitHub.
 Настроить подключение к базе данных PostgreSQL в файле application.yml.
-Так же должен быть запущен docker-compose с контейнером Redis с помощью команды:
+Так же должен быть запущен Docker с контейнером Redis с помощью команды:
 ```
 docker-compose up redis
 ```
