@@ -48,11 +48,13 @@ docker-compose up redis
 Сборка проекта с помощью Maven
 ```
 mvn clean install
+```
 
 Запуск приложения:
 ```
 mvn spring-boot:run
 ```
+
 В браузере перейти по адресу http://localhost:8080/swagger-ui/index.html для доступа к Swagger UI (частичтно настроен)
 
 ## Доступные эндпойнты:
@@ -61,7 +63,7 @@ mvn spring-boot:run
 ### Управление пользователями:
 * GET `http://localhost:8080/api/v1/users/search` - поиск пользователей с возможностью фильтрации по различным критериям и пагинацией результатов
 * GET `http://localhost:8080/api/v1/users/{id}` - получить всю информацию о пользователя по id 
-* PUT `http://localhost:8080/api/v1/users/{id}` - обновить пользователя
+* PUT `http://localhost:8080/api/v1/users/{id}` - обновить пользователя (дорабатывается)
 * DELETE `http://localhost:8080/api/v1/users/{id}` - удалить пользователя
 ### Перевод средств между пользователями
 * POST `http://localhost:8080/api/v1/accounts/transfer` - перевести средства от одного пользователя к другому.
