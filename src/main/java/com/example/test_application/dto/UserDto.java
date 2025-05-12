@@ -2,6 +2,7 @@ package com.example.test_application.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -9,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
 @Schema(description = "Сущность пользователя")
 public class UserDto implements Serializable {
 
