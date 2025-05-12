@@ -43,12 +43,12 @@ Java 17, PostgresSQL, Spring boot (v3.4.5), OpenAPI/Swagger, Maven, Redis, Liqui
 
 ## Запуск проекта:
 Скачать проект из репозитория GitHub.
-Настроить подключение к базе данных PostgreSQL в файле application.yml
+Настроить подключение к базе данных PostgreSQL в файле application.yml.
 Сборка проекта с помощью Maven
 ```
 mvn clean install
 ```
-* Запуск приложения:
+Запуск приложения:
 ```
 mvn spring-boot:run
 ```
